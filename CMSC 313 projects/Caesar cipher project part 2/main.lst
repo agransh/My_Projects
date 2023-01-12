@@ -1,0 +1,395 @@
+     1                                  ;Name: Agransh Srivastava, Matthew Yu
+     2                                  ;Filename: Yu_srivastava_project4.asm
+     3                                  ;User ID: asrivas1@umbc.edu, myu2@umbc.edu
+     4                                  ;Class: CMSC 313
+     5                                  ;Professor: Ivan Sekyonda
+     6                                  ;Date: 7/18/2022
+     7                                  ;Desciption: this program has a menu option that performs multiple operations such as taking aa string, encrypting it, decrypting it, using ceasar cipher and other logic
+     8                                  extern display
+     9                                  extern edit
+    10                                  extern scanf
+    11                                  extern printf
+    12                                  extern decipher
+    13                                  
+    14                                  	
+    15                                  	section .data
+    16 00000000 456E6372797074696F-     titlemessage	db	"Encryption menu options: ", 10
+    16 00000009 6E206D656E75206F70-
+    16 00000012 74696F6E733A200A   
+    17                                  t_len		equ	$-titlemessage
+    18                                  
+    19 0000001A 732D2073686F772063-     op1		db	"s- show current message",10
+    19 00000023 757272656E74206D65-
+    19 0000002C 73736167650A       
+    20                                  op1_len		equ	$-op1
+    21                                  
+    22 00000032 722D2072656164206E-     op2             db      "r- read new message",10
+    22 0000003B 6577206D6573736167-
+    22 00000044 650A               
+    23                                  op2_len         equ     $-op2
+    24                                  
+    25 00000046 632D20636165736172-     op3             db      "c- caesar cipher",10
+    25 0000004F 206369706865720A   
+    26                                  op3_len         equ     $-op3
+    27                                  
+    28 00000057 662D20667265717565-     op4             db      "f- frequency decrypt",10
+    28 00000060 6E6379206465637279-
+    28 00000069 70740A             
+    29                                  op4_len         equ     $-op4
+    30                                  
+    31 0000006C 712D20717569742070-     op5             db      "q- quit program",10
+    31 00000075 726F6772616D0A     
+    32                                  op5_len         equ     $-op5
+    33                                  
+    34 0000007C 456E746572206F7074-     input           db   	 "Enter option letter: ",10
+    34 00000085 696F6E206C65747465-
+    34 0000008E 723A200A           
+    35                                  in_len         	equ     $-input
+    36                                  
+    37 00000092 456E74657220612073-     num_r           db      "Enter a shift value: ",20
+    37 0000009B 686966742076616C75-
+    37 000000A4 653A2014           
+    38                                  len_r           equ     $-num_r
+    39                                  
+    40 000000A8 4572726F7220706C65-     err             db      "Error please try again",10
+    40 000000B1 617365207472792061-
+    40 000000BA 6761696E0A         
+    41                                  len_e           equ     $-err
+    42                                  
+    43 000000BF 456E6372797074696F-     encr            db      "Encryption: ",9
+    43 000000C8 6E3A2009           
+    44                                  encr_len        equ     $-encr
+    45                                  
+    46 000000CC 496E76616C6964206F-     err2		db	"Invalid option! Try again!",10
+    46 000000D5 7074696F6E21205472-
+    46 000000DE 7920616761696E210A 
+    47                                  len_e2		equ	$-err2
+    48                                  
+    49 000000E7 00000000                intB		dd	0
+    50                                  
+    51 000000EB 00000000                intC		dd	0
+    52                                  
+    53 000000EF E6000000                num 		dd 	230
+    54 000000F3 456E74657220612073-     msg 		db 	"Enter a string: " , 0
+    54 000000FC 7472696E673A2000   
+    55 00000104 456E74657220616E20-     msg2 		db 	"Enter an index between 0 and 9: ", 0
+    55 0000010D 696E64657820626574-
+    55 00000116 7765656E203020616E-
+    55 0000011F 6420393A2000       
+    56 00000125 546869732069732074-     orgmsg          db      "This is the orignial message", 10, 0
+    56 0000012E 6865206F7269676E69-
+    56 00000137 616C206D6573736167-
+    56 00000140 650A00             
+    57 00000143 256400                  fmtS 		db 	"%d", 0
+    58 00000146 0A                      new_line	db	10
+    59                                  	section .bss
+    60 00000000 ????                    temp		resb	2
+    61 00000002 <res 50h>               arr		resq 	10
+    62 00000052 <res FFh>               string_buff	resb	255
+    63 00000151 ??????                  num_buff	resb 	3
+    64 00000154 ??                      char_buff	resb	1
+    65 00000155 <res 3FCh>              stringB		resd	255
+    66 00000551 ????????                numI		resd	1			;this reserves space for an integer
+    67                                  	section .text
+    68                                  	global main
+    69                                  main:
+    70 00000000 41B900000000            	mov 	r9, 0				;moves 0 into 49 to initialize it
+    71 00000006 E802000000              	call	arrlabel			;calls testlabel which makes the array
+    72 0000000B EB16                    	jmp 	menu				;jmp to menu call
+    73                                  arrlabel:
+    74 0000000D 49C781[02000000]-        	mov     qword[arr+r9], orgmsg		;putting the original messaage in every single index here
+    74 00000014 [25010000]         
+    75 00000018 4983C108                        add     r9 , 8				;moves the pointer to the next index
+    76 0000001C 4983F950                        cmp     r9, 80				;runs the pointer for 10 spots
+    77 00000020 7CEB                            jl      arrlabel			;loops back again to test label if less
+    78 00000022 C3                      	ret
+    79                                  menu:	
+    80 00000023 B801000000              	mov     rax, 1				;prints out the title message
+    81 00000028 BF01000000                      mov     rdi, 1				
+    82 0000002D 48BE-                           mov     rsi, titlemessage
+    82 0000002F [0000000000000000] 
+    83 00000037 BA1A000000                      mov     rdx, t_len
+    84 0000003C 0F05                            syscall
+    85                                  	
+    86 0000003E B801000000               	mov     rax, 1				;prints out the first option
+    87 00000043 BF01000000                      mov     rdi, 1
+    88 00000048 48BE-                           mov     rsi, op1
+    88 0000004A [1A00000000000000] 
+    89 00000052 BA18000000                      mov     rdx, op1_len
+    90 00000057 0F05                            syscall
+    91                                  
+    92 00000059 B801000000                      mov     rax, 1				;prints out the second option
+    93 0000005E BF01000000                      mov     rdi, 1
+    94 00000063 48BE-                           mov     rsi, op2
+    94 00000065 [3200000000000000] 
+    95 0000006D BA14000000                      mov     rdx, op2_len
+    96 00000072 0F05                            syscall
+    97                                  
+    98 00000074 B801000000                      mov     rax, 1				;prints out the third option
+    99 00000079 BF01000000                      mov     rdi, 1
+   100 0000007E 48BE-                           mov     rsi, op3
+   100 00000080 [4600000000000000] 
+   101 00000088 BA11000000                      mov     rdx, op3_len
+   102 0000008D 0F05                            syscall
+   103                                  
+   104 0000008F B801000000                      mov     rax, 1				;prints out the fourth option
+   105 00000094 BF01000000                      mov     rdi, 1
+   106 00000099 48BE-                           mov     rsi, op4
+   106 0000009B [5700000000000000] 
+   107 000000A3 BA15000000                      mov     rdx, op4_len
+   108 000000A8 0F05                            syscall
+   109                                  
+   110 000000AA B801000000                      mov     rax, 1				;prints out the fifth option
+   111 000000AF BF01000000                      mov     rdi, 1
+   112 000000B4 48BE-                           mov     rsi, op5
+   112 000000B6 [6C00000000000000] 
+   113 000000BE BA10000000                      mov     rdx, op5_len
+   114 000000C3 0F05                            syscall
+   115                                  
+   116 000000C5 B801000000                      mov     rax, 1				;prints out the message asking user to put in a character
+   117 000000CA BF01000000                      mov     rdi, 1
+   118 000000CF 48BE-                           mov     rsi, input
+   118 000000D1 [7C00000000000000] 
+   119 000000D9 BA16000000                      mov     rdx, in_len
+   120 000000DE 0F05                            syscall
+   121                                  
+   122 000000E0 B800000000                      mov     rax, 0				;stores that letter the user chose in char buff
+   123 000000E5 BF00000000                      mov     rdi, 0
+   124 000000EA 48BE-                           mov     rsi, char_buff
+   124 000000EC [5401000000000000] 
+   125 000000F4 BA02000000                      mov     rdx, 2
+   126 000000F9 0F05                            syscall
+   127                                  	
+   128 000000FB 448A0425[54010000]      	mov 	r8b, [char_buff]		;gets that letter from the buffer and stores it into r8b
+   129 00000103 4180F873                	cmp	r8b, 's'			;here we check if the user put in s or S
+   130 00000107 745E                    	jz  	show				;which jumps to show if the user did choose that
+   131 00000109 4983F853                	cmp	r8, 'S'
+   132 0000010D 7458                    	jz	show
+   133                                  	
+   134 0000010F 4180F872                	cmp     r8b, 'r'			;here we check if the user chose in r or R
+   135 00000113 745C                            jz      read				;ju,ps to the read label if the user did that
+   136 00000115 4180F852                        cmp     r8b, 'R'
+   137 00000119 7456                            jz      read
+   138                                  
+   139 0000011B 4180F863                  	cmp     r8b, 'c'			;here the code checks if the user puts in a c or a C			
+   140 0000011F 745A                            jz      caesar				;jumps to ceaser if so
+   141 00000121 4180F843                        cmp     r8b, 'C'
+   142 00000125 7454                            jz      caesar
+   143                                  	
+   144 00000127 4180F866                	cmp     r8b, 'f'			;here the code checks if the user put in f
+   145 0000012B 7458                            jz      decrypt				;jumps to the decrypt label if so
+   146 0000012D 4180F846                        cmp     r8b, 'F'
+   147 00000131 7452                            jz      decrypt	
+   148                                  
+   149 00000133 4180F871                	cmp 	r8b,'q'				;here the code checks if the user put in q or q
+   150 00000137 0F8466020000            	jz	exit				;exits the program if so
+   151 0000013D 4180F851                	cmp	r8b,'Q'
+   152 00000141 0F845C020000            	jz	exit
+   153                                   	
+   154 00000147 B801000000              	mov     rax, 1                          ;prints out the error message in case the user inputs in a wrong choice
+   155 0000014C BF01000000                      mov     rdi, 1
+   156 00000151 48BE-                           mov     rsi, err2
+   156 00000153 [CC00000000000000] 
+   157 0000015B BA1B000000                      mov     rdx, len_e2
+   158 00000160 0F05                            syscall
+   159                                  
+   160 00000162 E9BCFEFFFF              	jmp 	menu
+   161                                  
+   162                                  
+   163                                  show:						;here are the different labels that call each funciton seperately
+   164 00000167 E852000000              	call 	showmsg				;here we call showmsg
+   165 0000016C E9B2FEFFFF              	jmp 	menu				;jump to menu after we are done so that the program can keep looping
+   166                                  read:
+   167 00000171 E819000000              	call readmsg				;here we call readmsg
+   168 00000176 E9A8FEFFFF              	jmp menu				;jumps to menu when done
+   169                                  caesar:
+   170 0000017B E84E000000              	call encrypt				;here we call encrypt
+   171 00000180 E99EFEFFFF              	jmp menu
+   172                                  decrypt:
+   173 00000185 E8B5010000              	call dcr				;here we call dcr which is the decipher function
+   174 0000018A E994FEFFFF              	jmp menu
+   175                                  	
+   176                                  readmsg:					;this is our read function
+   177 0000018F 48BF-                   	mov	rdi, msg			;here we store msg which asks the user to enter ni a string into rdi
+   177 00000191 [F300000000000000] 
+   178 00000199 4831C0                  	xor	rax, rax			;here we move in 0 into rax to empty it out
+   179 0000019C E8(00000000)            	call	printf				;print out the statement from above
+   180                                  
+   181 000001A1 48BF-                   	mov	rdi, arr			;here we move the array address into rdi
+   181 000001A3 [0200000000000000] 
+   182 000001AB 4831F6                  	xor	rsi, rsi			;we xor rsi to clear out rsi
+   183 000001AE 48BE-                   	mov	rsi, intB			;we then pass the integer buffer in here
+   183 000001B0 [E700000000000000] 
+   184 000001B8 E8(00000000)            	call	edit				;call the edit function here from our C file
+   185 000001BD C3                      	ret					;retrun to the read label
+   186                                  
+   187                                  showmsg:
+   188 000001BE 48BF-                   	mov     rdi , arr			;here we move the array into rdi
+   188 000001C0 [0200000000000000] 
+   189 000001C8 E8(00000000)            	call    display				;call teh display funciton in C
+   190 000001CD C3                      	ret					;return to show label
+   191                                  
+   192                                  encrypt:
+   193 000001CE 48BF-                   	mov     rdi, msg2			;moving the other message into rdi here where we ask the user to put in an index number they want to encrypt
+   193 000001D0 [0401000000000000] 
+   194 000001D8 4831C0                          xor     rax, rax			;clearing rax
+   195 000001DB E8(00000000)                    call    printf				;printing out the above statement to theuser
+   196                                  
+   197 000001E0 48BF-                           mov     rdi, fmtS			;we use scanf here and store teh number that the user gave us into num I
+   197 000001E2 [4301000000000000] 
+   198 000001EA 48BE-                           mov     rsi, numI
+   198 000001EC [5105000000000000] 
+   199 000001F4 4831C0                          xor     rax, rax
+   200 000001F7 E8(00000000)                    call    scanf
+   201                                  
+   202                                  						
+   203 000001FC 49BA-                   	mov     r10, arr			;here we move the array into r10 to loop through it
+   203 000001FE [0200000000000000] 
+   204 00000206 B900000000                      mov     rcx, 0				;counter to keep track of the index that the code is on 
+   205 0000020B 4983EA08                        sub     r10, 8				;this line ensure that the code will start at the 0th index
+   206 0000020F 48FFC9                  	dec 	rcx 				;decreases counter before entering so that the counter starts at 0
+   207                                          looper2:
+   208 00000212 4983C208                                add     r10, 8			;increments it to the next index since one index is 8 bits long
+   209 00000216 48FFC1                                  inc     rcx			;increments the counter 
+   210 00000219 483B0C25[51050000]                      cmp     rcx, [numI]		;this ensures that the code loops until the index that the user wants to be put in the code
+   211 00000221 7CEF                                    jl      looper2			;loops back to looper again if lesss
+   212                                  		
+   213                                  
+   214 00000223 4D89D3                                  mov     r11, r10		;moves the address of the array into r11
+   215                                  
+   216 00000226 B801000000              	mov     rax,1                   	;prints out the message for asking user for the shift value
+   217 0000022B BF01000000                      mov     rdi,1
+   218 00000230 48BE-                           mov     rsi,num_r
+   218 00000232 [9200000000000000] 
+   219 0000023A BA16000000                      mov     rdx,len_r
+   220 0000023F 0F05                            syscall
+   221                                  
+   222                                  
+   223 00000241 B800000000                      mov     rax,0                   	;stores in the shift value here
+   224 00000246 BF00000000                      mov     rdi,0
+   225 0000024B 48BE-                           mov     rsi,num_buff
+   225 0000024D [5101000000000000] 
+   226 00000255 BA03000000                      mov     rdx,3
+   227 0000025A 0F05                    	syscall
+   228                                  			
+   229 0000025C 4883F802                	cmp     rax,2                   	;comparing if the length of the number is 2 digits
+   230 00000260 750A                            jne     threecharcheck
+   231 00000262 802C25[51010000]30              sub     byte [num_buff], 48
+   232                                  
+   233 0000026A EB3D                            jmp for_loop
+   234                                  
+   235                                  
+   236                                  	threecharcheck:
+   237 0000026C 4883F802                        	cmp     rax,2                   ;checks to see if the numbers are three characters
+   238 00000270 757D                            	jnz     error_func              ;goes to error if more than 3
+   239 00000272 49BE-                           	mov     r14, num_buff           ;stores the shift into r10
+   239 00000274 [5101000000000000] 
+   240 0000027C 49FFC6                          	inc     r14                     ;increases r10 by 1 to get the first digit
+   241 0000027F 803C25[51010000]2D              	cmp     byte[num_buff],45       ;checks if the number entered is a negative since ascii for '-' is 45
+   242 00000287 7466                            	je      error_func              ;jumps to error
+   243 00000289 802C25[51010000]30              	sub     byte[num_buff],48       ;subtracts 48 from the first digit
+   244 00000291 41802E30                        	sub     byte[r14],48            ;subtracts 48 from the second digit
+   245 00000295 B00A                            	mov     al,10                   ;this part stores in double digits
+   246 00000297 8A1C25[51010000]                	mov     bl,[num_buff]
+   247 0000029E F6E3                            	mul     bl                      ;we think the error is in the for loop either when we move r7b into the for loop or add r8b to the letter
+   248 000002A0 410206                          	add     al, [r14]
+   249 000002A3 3C19                            	cmp     al,25
+   250 000002A5 7F48                            	jg      error_func
+   251 000002A7 EB00                            	jmp     for_loop
+   252                                  
+   253                                  	for_loop:
+   254 000002A9 4D89D9                          	mov     r9, r11			;stores the string into r9
+   255 000002AC 49FFC9                          	dec     r9                      ;decrements r9 because it starts at the first letter  otherwise
+   256 000002AF 4188C5                          	mov     r13b,al
+   257                                          	shift:                          ;shift by key  for the letters
+   258 000002B2 49FFC1                                  	inc r9                  ;incrementing r9
+   259 000002B5 41803900                                	cmp byte[r9],0	        ;this makes sure that the loop runs until the end of the string by comparing it to 0. Pretty sure this is where the code segfaults according to gdb we dont know why
+   260 000002B9 7454                                    	je printmsg             ;if true then we print
+   261                                                  	check_punc:
+   262 000002BB 41803941                                        	cmp     byte[r9], 'A'   ;checks if the first byte is an A
+   263 000002BF 7CF1                                            	jl      shift           ;if it is less than an A then we go back to shift
+   264                                  
+   265 000002C1 4180397A                                        	cmp     byte[r9], 'z'   ;checks if the first bytw is z
+   266 000002C5 7FEB                                            	jg      shift           ;if greater than z then we go back to shift
+   267 000002C7 4180395A                                        	cmp     byte[r9], 'Z'   ;checks if first byte is Z
+   268 000002CB 7F11                                            	jg      check_lower     ;if greater than z then we go to check_lower
+   269 000002CD 450029                                  	add byte[r9],r13b                ;shifts a character in the string by the numbuff
+   270                                   	              	wrap_upper:
+   271 000002D0 4180395A                                        	cmp     byte[r9], 'Z'   ;wraps in case code hits upper case Z
+   272 000002D4 7F02                                            	jg      subtract        ;calls subtract if its greater in order to wrap
+   273                                  
+   274 000002D6 EBDA                                    	jmp shift                       ;loops back to shift
+   275                                  
+   276                                  	subtract:
+   277 000002D8 4180291A                        	sub     byte[r9],26                     ;subtracts 26 from Z or z to bring it back to either A or a
+   278 000002DC EBD4                            	jmp     shift                           ;jumps to shift again to go back into the loop
+   279                                  	check_lower:
+   280 000002DE 41803961                        	cmp     byte[r9],'a'                    ;compares the byte to lowercase a
+   281 000002E2 7CCE                            	jl      shift                           ;if its less than lowercase a then we go back to shift since its a special character
+   282 000002E4 450029                          	add     byte[r9],r13b                    ;add the shifter to the byte to encrypt
+   283                                          	check_wrap:
+   284 000002E7 4180397A                                	cmp     byte[r9],'z'            ;checks if we hit z
+   285 000002EB 7FEB                                    	jg      subtract                ;subtracts 26 to go back to a
+   286 000002ED EBC3                            	jmp     shift
+   287                                  
+   288                                  	error_func:
+   289 000002EF B801000000                      	mov rax, 1                              ;prints out the error message if the user ever hit error in the code
+   290 000002F4 BF01000000                      	mov rdi, 1
+   291 000002F9 48BE-                           	mov rsi, err
+   291 000002FB [A800000000000000] 
+   292 00000303 BA17000000                      	mov rdx, len_e
+   293 00000308 0F05                            	syscall
+   294 0000030A E994000000                      	jmp exit                                ;jumps to exit to end code
+   295                                  	printmsg:
+   296 0000030F B801000000                      	mov     rax, 1                          ;prints out the encryption message
+   297 00000314 BF01000000                      	mov     rdi, 1
+   298 00000319 48BE-                     	     	mov     rsi, encr
+   298 0000031B [BF00000000000000] 
+   299 00000323 BA0D000000                      	mov     rdx, encr_len
+   300 00000328 0F05                        	   	syscall
+   301                                  
+   302 0000032A B801000000                      	mov     rax, 1                          ;prints out the encrypted string of letters
+   303 0000032F BF01000000                      	mov     rdi, 1
+   304 00000334 4C89DE                          	mov     rsi, r11
+   305 00000337 BA14000000                	     	mov     rdx, 20
+   306 0000033C 0F05                            	syscall
+   307                                  	
+   308 0000033E C3                      	ret
+   309                                  	
+   310                                  
+   311                                  dcr:					
+   312 0000033F 48BF-                   	mov     rdi, msg2				;moves in the message to ask user for the index	
+   312 00000341 [0401000000000000] 
+   313 00000349 4831C0                          xor     rax, rax
+   314 0000034C E8(00000000)                    call    printf					;prints out the message here
+   315                                  
+   316 00000351 48BF-                           mov     rdi, fmtS				;here we store in that number into numI using scanf
+   316 00000353 [4301000000000000] 
+   317 0000035B 48BE-                           mov     rsi, numI
+   317 0000035D [5105000000000000] 
+   318 00000365 4831C0                          xor     rax, rax
+   319 00000368 E8(00000000)                    call    scanf
+   320                                  	
+   321                                  
+   322 0000036D 48BF-                           mov     rdi, arr				;move in the array into rdi 
+   322 0000036F [0200000000000000] 
+   323 00000377 4831F6                          xor     rsi, rsi				;clear rsi
+   324 0000037A 488B3425[51050000]              mov     rsi, [numI]				;here we move in the index value inside rsi
+   325 00000382 E8(00000000)                    call    decipher				;we call decipher here
+   326 00000387 C3                              ret						;returns to menu
+   327                                  
+   328                                  
+   329                                  
+   330                                  
+   331 00000388 B801000000              	mov  	rax, 1					;this creates a newline in the code for organization purposes
+   332 0000038D BF01000000                      mov     rdi, 1
+   333 00000392 48BE-                           mov     rsi, new_line
+   333 00000394 [4601000000000000] 
+   334 0000039C BA01000000                      mov     rdx,1
+   335 000003A1 0F05                            syscall
+   336                                  
+   337                                  
+   338                                  exit:
+   339 000003A3 B83C000000              	mov	rax, 60					;exits code here
+   340 000003A8 4831FF                  	xor 	rdi,rdi
+   341 000003AB 0F05                    	syscall

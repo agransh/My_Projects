@@ -1,0 +1,56 @@
+#include <math.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <ctype.h>
+#include <stdbool.h>
+
+//function for r menu option
+
+
+int sqaure(int num){
+	return (int)sqrt ((double)num);
+}
+
+char * validate (char * messages){
+	int buffer = 256;
+	int position = 0;
+
+	char* cmd = malloc(sizeof(char) * buffer);
+	
+	int cha;
+	int count = 1;
+	
+	if((int)cmd[0] < 64 && (int)cmd[0] > 91){
+		printf ("error");
+	}
+
+	while (count == 1){
+		cha = fgetc(stdin);
+		if (cha == EOF || cha == '\n'){
+			if(cmd[position-1] != '!' || cmd[position-1] != '.' || cmd[position-1] != '?' ){
+				printf ("error");
+			}	
+			cmd[position] = '\0';
+			count = 0;
+		}
+		else{
+			cmd[position] = cha;
+
+		}
+		position++;
+
+		if (position >= buffer){
+			buffer += 256;
+			cmd realloc(cmd, buffer);
+		}
+	}
+
+	reutrn cmd;	
+}
+
+void freeUp (char* messages){
+	free(messages);
+}
+
