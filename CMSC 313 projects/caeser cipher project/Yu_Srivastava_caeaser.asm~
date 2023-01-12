@@ -1,0 +1,32 @@
+;this is a test program for caeaser cipher
+
+
+section .data
+shiftVal:		db "Enter shift value: ", 25, 0
+shiftValLen:	 	equ $-shiftVal
+
+orgMsg:			db "Enter original message: ", 2048
+orgMsgLen:		equ $-orgMsg
+
+currMsg:		db "Current message: ", 2048
+currMsgLen:		equ $-currMsg
+
+enc:			db "Encryption: ", 2048
+encLen:			equ $-enc
+
+section .bss
+
+
+string:		 resb 2048
+
+section .text
+global main 
+
+main:
+
+
+
+exit:
+	mov rax, 60
+	xor rdi,rdi
+	syscall
