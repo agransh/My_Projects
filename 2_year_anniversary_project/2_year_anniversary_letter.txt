@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love Letter</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #ffe6e6;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      position: relative;
+      z-index: 10; /* Keep letter content on top */
+    }
+
+    .envelope {
+      width: 300px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 1s ease;
+    }
+
+    .open-envelope {
+      transform: rotateX(180deg);
+    }
+
+    .letter {
+      display: none;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      width: 70%;
+      max-width: 800px;
+      margin-left: 60px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: opacity 1s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .letter.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .gallery {
+      width: 150px;
+      height: 300px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .gallery img.active {
+      opacity: 1;
+    }
+
+    .letter-content {
+      flex: 1;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .letter-content h1 {
+      color: #ff3366;
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .letter-content p {
+      font-size: 1.2em;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .heart {
+      font-size: 2em;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #ff3366;
+    }
+
+    .scattered-image {
+      position: absolute;
+      border-radius: 10px;
+      object-fit: cover;
+      animation: float 10s infinite ease-in-out;
+      z-index: 1; /* Ensure images stay behind the letter */
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Music -->
+  <audio autoplay loop>
+    <source src="background.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <div class="container">
+    <!-- Heart message -->
+    <p class="heart" id="heartMessage">❤️ Click to Open Me ❤️</p>
+
+    <!-- Closed envelope image -->
+    <img src="envelope.png" alt="Envelope" class="envelope" id="envelope">
+
+    <!-- Love letter content -->
+    <div class="letter" id="letter">
+      <!-- Left slideshow -->
+      <div class="gallery" id="leftGallery">
+        <img src="IMG_6534.jpg" alt="Memory 1" class="active">
+        <img src="IMG_0958.jpg" alt="Memory 2">
+        <img src="IMG_6058.jpg" alt="Memory 3">
+        <img src="IMG_5766.jpg" alt="Memory 4">
+      </div>
+
+      <!-- Letter text content -->
+      <div class="letter-content">
+        <h1>My Love for You ❤️</h1>
+        <p>Dear Love,</p>
+        <p>You are my favorite person in the world. Thank you for all the joy you bring to my life every day. Here's a collection of some of our favorite memories together. I love you forever and always! 😘</p>
+      </div>
+
+      <!-- Right slideshow -->
+      <div class="gallery" id="rightGallery">
+        <img src="IMG_5747.jpg" alt="Memory 5" class="active">
+        <img src="IMG_4933.jpg" alt="Memory 6">
+        <img src="IMG_2203.jpg" alt="Memory 7">
+        <img src="IMG_9929.jpg" alt="Memory 8">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const envelope = document.getElementById('envelope');
+    const letter = document.getElementById('letter');
+    const heartMessage = document.getElementById('heartMessage');
+
+    // Open envelope and show the letter
+    envelope.addEventListener('click', () => {
+      envelope.classList.add('open-envelope'); // Flip the envelope
+      heartMessage.style.display = 'none'; // Hide the heart message
+
+      setTimeout(() => {
+        envelope.style.display = 'none'; // Hide envelope after animation
+        letter.style.display = 'flex'; // Show letter
+        setTimeout(() => {
+          letter.style.opacity = 1; // Fade in letter smoothly
+        }, 100); // Delay for smooth opacity
+      }, 1000); // Matches the flip animation time
+    });
+
+    // Function to scatter images
+    function scatterImages() {
+      const numImages = 20; // Number of scattered images
+      const imageUrls = [
+        "IMG_6534.jpg",
+        "IMG_0958.jpg",
+        "IMG_6058.jpg",
+        "IMG_5766.jpg",
+        "IMG_5747.jpg",
+        "IMG_4933.jpg",
+        "IMG_2203.jpg",
+        "IMG_9929.jpg",
+      ];
+
+      const containerBounds = document.querySelector('.container').getBoundingClientRect();
+
+      for (let i = 0; i < numImages; i++) {
+        const img = document.createElement('img');
+        img.src = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+        img.className = 'scattered-image';
+        img.style.width = `${Math.random() * 100 + 50}px`;
+        img.style.height = img.style.width;
+
+        let top, left;
+        do {
+          top = Math.random() * 90;
+          left = Math.random() * 90;
+        } while (
+          left >= containerBounds.left / window.innerWidth * 100 &&
+          left <= (containerBounds.right / window.innerWidth * 100) &&
+          top >= containerBounds.top / window.innerHeight * 100 &&
+          top <= (containerBounds.bottom / window.innerHeight * 100)
+        );
+
+        img.style.top = `${top}vh`;
+        img.style.left = `${left}vw`;
+        document.body.appendChild(img);
+      }
+    }
+
+    scatterImages(); // Scatter images on page load
+  </script>
+
+</body>
+</html>

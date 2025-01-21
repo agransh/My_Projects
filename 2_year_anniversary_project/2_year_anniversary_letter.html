@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love Letter</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #ffe6e6;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      margin-top: 50px; /* Move the container further down */
+    }
+
+    .envelope {
+      width: 300px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 1s ease;
+    }
+
+    .open-envelope {
+      transform: rotateX(180deg);
+    }
+
+    .letter {
+      display: none;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      width: 70%;
+      max-width: 800px;
+      margin-left: 60px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: opacity 1s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .letter.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .heart-image {
+      width: 150px;
+      height: auto;
+    }
+
+    .letter-content {
+      flex: 1;
+      padding: 0 20px;
+      text-align: center;
+    }
+
+    .letter-content h1 {
+      color: #ff3366;
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .letter-content p {
+      font-size: 1.2em;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .heart {
+      font-size: 2em;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #ff3366;
+    }
+
+    .scattered-image {
+      position: absolute;
+      border-radius: 10px;
+      object-fit: cover;
+      animation: float 10s infinite ease-in-out;
+      z-index: 1;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Music -->
+  <audio id="backgroundMusic">
+    <source src="C:/Users/agran/Downloads/izzy images/Mitski - My Love Mine All Mine.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <div class="container">
+    <!-- Heart message -->
+    <p class="heart" id="heartMessage">❤️ Click to Open Me ❤️</p>
+
+    <!-- Closed envelope image -->
+    <img src="https://static.vecteezy.com/system/resources/thumbnails/018/764/710/small_2x/envelope-with-heart-png.png" alt="Envelope" class="envelope" id="envelope">
+
+    <!-- Love letter content -->
+    <div class="letter" id="letter">
+      <!-- Left heart image -->
+      <img
+        src="https://i.pinimg.com/736x/c4/f0/b0/c4f0b021549c4ed83c726b0f39947a08.jpg"
+        alt="Heart"
+        class="heart-image"
+      />
+
+      <!-- Letter text content -->
+      <div class="letter-content">
+        <h1>❤️ Happy 2 Year Anniversary! ❤️</h1>
+        <p>Dear Bunny,</p>
+        <p>You are my favorite person in the world. We made it to 2 years! Thank you for all the joy you bring to my life every day. Here's a collection of some of our favorite memories together. I love you forever and always! 😘</p>
+      </div>
+
+      <!-- Right heart image -->
+      <img
+        src="https://i.pinimg.com/736x/c4/f0/b0/c4f0b021549c4ed83c726b0f39947a08.jpg"
+        alt="Heart"
+        class="heart-image"
+      />
+    </div>
+  </div>
+
+  <script>
+    const envelope = document.getElementById('envelope');
+    const letter = document.getElementById('letter');
+    const heartMessage = document.getElementById('heartMessage');
+    const backgroundMusic = document.getElementById('backgroundMusic');
+
+    // Open envelope and show the letter
+    envelope.addEventListener('click', () => {
+      envelope.classList.add('open-envelope'); // Flip the envelope
+      heartMessage.style.display = 'none'; // Hide the heart message
+
+      setTimeout(() => {
+        envelope.style.display = 'none'; // Hide envelope after animation
+        letter.style.display = 'flex'; // Show letter
+        setTimeout(() => {
+          letter.style.opacity = 1; // Fade in letter smoothly
+        }, 100); // Delay for smooth opacity
+      }, 1000); // Matches the flip animation time
+
+      // Play background music
+      backgroundMusic.play().catch((error) => {
+        console.error("Music playback failed:", error);
+      });
+    });
+
+    // Function to scatter images and cycle them randomly
+    function scatterImages() {
+      const numImages = 25; // Number of scattered images
+      const imageUrls = [
+        "IMG_6534.jpeg",
+        "IMG_6516.jpeg",
+        "IMG_0958.jpg",
+        "IMG_6058.jpg",
+        "IMG_5766.jpg",
+        "IMG_5758.jpg",
+        "IMG_5747.jpg",
+        "IMG_4933.jpg",
+        "IMG_2203.jpg",
+        "IMG_1705.jpg",
+        "IMG_9929.jpg",
+      ];
+
+      const scatteredImages = [];
+
+      for (let i = 0; i < numImages; i++) {
+        const img = document.createElement('img');
+        img.src = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+        img.className = 'scattered-image';
+        img.style.width = `${Math.random() * 100 + 50}px`;
+        img.style.height = img.style.width;
+        img.style.top = `${Math.random() * 90}vh`;
+        img.style.left = `${Math.random() * 90}vw`;
+        document.body.appendChild(img);
+        scatteredImages.push(img);
+      }
+
+      // Cycle images randomly
+      setInterval(() => {
+        const randomIndex = Math.floor(Math.random() * scatteredImages.length);
+        const randomImage = scatteredImages[randomIndex];
+        const newImageUrl = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+        randomImage.src = newImageUrl;
+      }, 5000); // Change one image every 5 seconds
+    }
+
+    scatterImages(); // Scatter images on page load
+  </script>
+
+</body>
+</html>
